@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    h2 {
+      margin-left: 500px;
+      text-align: left;
+      font-size: 30px;
+    }
+
+    p{
+      margin-left: 100px;
+      margin-bottom: 50px;
+      font-size: 25px;
+      width: 1200px;
+    }
+
+    div.group_buttons{
+
+      width: 1000px;
+      height: 100px;
+      margin-left: 100px;
+    }
+    
+    button.button_handedness{
+      width: 250px;  
+      height: 50px;
+      background: rgb(251, 201, 127);
+      padding: 5px;
+      margin: 2px;
+      margin-top: 10px;
+      margin-left: 10px;
+      font-size: 20px;
+      text-align:center;
+    }
+    
+    button.button_xaxis{
+      width: 250px;  
+      height: 50px;
+      background: rgb(251, 201, 127);
+      padding: 5px;
+      margin: 2px;
+      margin-top: 10px;
+      margin-left: 10px;
+      font-size: 20px;
+      text-align:center;
+    }
+
+    button.button_yaxis{
+      width: 250px;  
+      height: 50px;
+      background: rgb(251, 201, 127);
+      padding: 5px;
+      margin: 2px;
+      margin-top: 10px;
+      margin-left: 10px;
+      font-size: 20px;
+      text-align:center;
+    }
+
+    svg{
+      margin-left: 100px;
+    }
+  </style>
+  <script src="js/d3.min.js"></script>
+  <script type="text/javascript">
+    function draw(baseball_data){
+      var margin = 75,
+          width = 1200,
+          height = 1000,
+          padding = 50;
+
+      var current_x = "weight";
+      var current_y = "HR";
+      var current_hand = 2;
+        // 0: R, 1: L, 2:RL
+
+      d3.select("body")
+        .append("h2")
+        .text("The performance of baseball players");
+
+      var svg = d3.select("body")
+        .append("svg")  
+        .attr("width", width+margin)
+        .attr("height", height+margin)
+        .append("g")
+        .attr("class", "baseball_graph");
+        
+      // add Y axis .....
+      svg.append("text")
+        .attr("class", "ylabel")
+        .attr("text-anchor", "end")
+        .attr("x", -height/2)
+        .attr("y", 2)
+        .attr("dy","0.55em")
+        .attr("transform", "rotate(-90)")
+        .attr("font-size", "20")
+        .text("HR")
+      // add X axis .....
+      svg.append("text")
+        .attr("class", "xlabel")
+        .attr("text-anchor", "end")
+        .attr("y", height)
+        .attr("x", width/2)
+        .attr("font-size", "20")
+        .text("Weight")
+
+
+      var maxX = 1.1*d3.max(baseball_data, 
+        function(d){return parseFloat(d["weight"]); });
+
+      var minX = 0.9*d3.min(baseball_data, 
+        function(d){return parseFloat(d["weight"]); }); 
+        
+      var maxY = 1.2*d3.max(baseball_data, function(d){return parseFloat(d["HR"]); });
+      var minY = 0.9*d3.min(baseball_data, function(d){return parseFloat(d["HR"]); });
+     
+
+      var xScale = d3.scale.linear()
+          .domain([minX, maxX])
+          .range([padding, width-padding]);
+
+      var yScale = d3.scale.linear()
+          .domain([minY, maxY])
+          .range([height-padding, padding]);
+
+      var xAxis = d3.svg.axis()
+          .scale(xScale)
+          .orient("bottom")
+          .ticks(7);
+
+      var yAxis = d3.svg.axis()
+          .scale(yScale)
+          .orient("left")
+          .ticks(7);
+
+      svg.append("g")
+          .attr("class", "axis")
+          .attr("transform", "translate(0, "+(height-padding )+")")
+          .call(xAxis);
+
+      svg.append("g")
+          .attr("class", "axis")
+          .attr("transform", "translate("+ padding +", 0)")
+          .call(yAxis);
+
+
+      function plot_points_hand(data){
+        // aggregate the information in each year
+        var nested_hand = d3.nest()
+          .key(function(d){
+              return d['handedness'];
+          })
+          .entries(data);
+
+        var ken_func = function(d){
+            return d['key'];
+
+        };
+        
+        var getXAxisValue = function(d){
+
+          if (parseFloat(d[current_x]) == 0){
+            return xScale(0);
+          } else{
+            return xScale(d[current_x]);
+          }
+        };
+              
+        var getYAxisValue = function(d){
+                      
+          if ( parseFloat(d[current_y]) <= 0){
+            return yScale(0);
+          } else{
+            return yScale(parseFloat(d[current_y]));
+          }
+        };
+        
+        // plot the points (left) with circle
+        svg.selectAll('circle')
+            .data(baseball_data)
+            .enter()
+            .append("circle")
+            .filter(function(d){            
+                return d["handedness"]=== "L";
+              })
+            .attr("cx", getXAxisValue)
+            .attr("cy", getYAxisValue)
+            .attr("r", 5)
+            .attr("fill", "blue")
+            .style("opacity", 1);
+
+        svg.selectAll('ellipse')
+            .data(baseball_data)
+            .enter()
+            .append("ellipse")
+            .filter(function(d){
+                return d["handedness"]=== "R";
+              })
+            .attr("cx", getXAxisValue)
+            .attr("cy", getYAxisValue)
+            .attr("rx", 5)
+            .attr("ry", 5)
+            .attr("fill", "red")
+            .style("opacity", 1);
+        
+        function update_hand(handedness1, handedness2){
+
+          // UPDATE HAND,
+          // both hand, opacity == 1
+          // single hand, opacity <= 1
+          
+          var opa=0  
+          if(current_hand ==2){
+            opa = 1;
+          } else{
+            opa =0;
+          }
+
+          // var circles1 = svg.selectAll('circle')
+          //     .data(baseball_data, ken_func);
+          // circles1.exit().remove();
+          
+          // var circles2 = svg.selectAll('ellipse')
+          //     .data(baseball_data, ken_func);
+          // circles2.exit().remove();
+
+           var circles1 = svg.selectAll('circle')
+              .remove();
+          
+          var circles2 = svg.selectAll('ellipse')
+              .remove();
+
+          var maxX = 1.1*d3.max(baseball_data, 
+            function(d){return parseFloat(d[current_x]); });
+          var minX = 0.9*d3.min(baseball_data, 
+            function(d){return parseFloat(d[current_x]); }); 
+            
+          var maxY = 1.1*d3.max(baseball_data, 
+            function(d){return parseFloat(d[current_y]); });
+          var minY = 0.9*d3.min(baseball_data, 
+            function(d){return parseFloat(d[current_y]); });
+          
+          var xScale = d3.scale.linear()
+              .domain([minX, maxX])
+              .range([padding, width-padding]);
+
+          var yScale = d3.scale.linear()
+              .domain([minY, maxY])
+              .range([height-padding, padding]);
+
+          var getXAxisValue = function(d){
+
+            if (parseFloat(d[current_x]) == 0){
+              return xScale(0);
+            } else{
+              return xScale(parseFloat(d[current_x]));
+            }
+          };
+              
+          var getYAxisValue = function(d){
+                        
+            if ( parseFloat(d[current_y]) <= 0){
+              return yScale(0);
+            } else{
+              return yScale(parseFloat(d[current_y]));
+            }
+          };
+          
+          svg.selectAll('circle')
+            .data(baseball_data)
+            .enter()
+            .append("circle")
+            .filter(function(d){            
+                return d["handedness"]=== handedness1;
+              })
+            .transition()
+            .duration(1000)
+            .attr("cx", getXAxisValue)
+            .attr("cy", getYAxisValue)
+            .attr("r", 5)
+            .attr("fill", function(d){
+                if(handedness1=="R"){
+                  return "blue";
+                } else{
+                  return "red";
+                }
+              })
+            .style("opacity", 1);
+          
+
+
+          svg.selectAll('ellipse')
+            .data(baseball_data)
+            .enter()
+            .append("ellipse")
+            .filter(function(d){
+                return d["handedness"]=== handedness2;
+              })
+            .transition()
+            .duration(1000)
+            .attr("cx", getXAxisValue)
+            .attr("cy", getYAxisValue)
+            .attr("rx", 5)
+            .attr("ry", 5)
+            .attr("fill", function(d){
+                if(handedness2=="R"){
+                  return "blue";
+                } else{
+                  return "red";
+                }
+              })
+            .style("opacity", opa);
+      
+        };
+        
+        function update_axis(xaxis_name, yaxis_name){
+          current_x = xaxis_name;
+          current_y = yaxis_name;
+          // determine the opacity of the hand
+          // change the handness label
+          // change axis, the initial handedness is 2
+          d3.select("button.button_handedness")
+            .text("Handedness is: RL");
+          current_hand = 2;
+
+          // remove the old axis
+          // remove the old datapoints
+          var axiss = svg.selectAll("g.axis");
+          axiss.transition()
+              .duration(1000)
+              .remove();
+          
+          // debugger;   
+          var circles1 = svg.selectAll('circle')
+              .data(baseball_data, ken_func);
+          circles1.exit()
+              .remove();
+          
+          var circles2 = svg.selectAll('ellipse')
+              .data(baseball_data, ken_func);
+          circles2.exit()
+              .remove();
+
+
+          var maxX = 1.1*d3.max(baseball_data, 
+            function(d){return parseFloat(d[xaxis_name]); });
+
+          var minX = 0.9*d3.min(baseball_data, 
+            function(d){return parseFloat(d[xaxis_name]); }); 
+            
+          var maxY = 1.1*d3.max(baseball_data, 
+            function(d){return parseFloat(d[yaxis_name]); });
+          var minY = 0.9*d3.min(baseball_data, 
+            function(d){return parseFloat(d[yaxis_name]); });
+          console.log(xaxis_name+", "+yaxis_name);
+          console.log("min, max of axis:" + 
+                    minX +', '+maxX + ', ' +
+                    minY +', '+maxY  );
+          
+          var xScale = d3.scale.linear()
+              .domain([minX, maxX])
+              .range([padding, width-padding]);
+
+          var yScale = d3.scale.linear()
+              .domain([minY, maxY])
+              .range([height-padding, padding]);
+            
+          var xAxis = d3.svg.axis()
+              .scale(xScale)
+              .orient("bottom")
+              .ticks(7);
+
+          var yAxis = d3.svg.axis()
+              .scale(yScale)
+              .orient("left")
+              .ticks(7);
+
+          if(yaxis_name =="avg"){
+            console.log("current y axis is avg");
+            yScale = d3.scale.linear()
+              .domain([1000.0*minY, 1000.0*maxY])
+              .range([height-padding, padding]);
+
+            yAxis = d3.svg.axis()
+              .scale(yScale)
+              .orient("left")
+              .ticks(4)
+              .tickFormat(function(d, i){
+                return ""+d/1000.0;
+              });
+          }
+            
+          // add new axises
+          svg.append("g")
+              .attr("class", "axis")
+              .attr("transform", "translate(0, "+(height-padding )+")")
+              .transition()
+              .duration(1000)
+              .call(xAxis);
+
+          svg.append("g")
+              .attr("class", "axis")
+              .attr("transform", "translate("+ padding +", 0)")
+              .transition()
+              .duration(1000)
+              .call(yAxis);
+              
+          var getXAxisValue2 = function(d){
+            
+            if (parseFloat(d[xaxis_name]) <= 0){
+              return xScale(0);
+            } else{
+              return xScale(parseFloat(d[xaxis_name]));
+            }
+          };
+                
+          var getYAxisValue2 = function(d){
+                        
+            if ( parseFloat(d[yaxis_name]) <= 0){
+              return yScale(0);
+            } else{
+              return yScale(parseFloat(d[yaxis_name]));
+            }
+          };
+
+
+          var getYAxisValue22 = function(d){                        
+            if ( parseFloat(d[yaxis_name]) <= 0){
+              //console.log(yScale(1000.0*parseFloat(d[yaxis_name])));
+              return yScale(0);
+            } else{
+              return yScale(1000.0*parseFloat(d[yaxis_name]));
+            }
+          };
+
+          ////////////// current hand
+
+
+          /////////////////////////////////////////
+          // the y axis is avg,
+          // the y axis value should be multiplied by 1000
+          if (yaxis_name=="avg"){
+
+            svg.selectAll('circle')
+              .data(baseball_data)
+              .enter()
+              .append("circle")
+              .filter(function(d){
+                  return d["handedness"]=== "L";
+                })
+              .transition()
+              .duration(500)
+              .attr("cx", getXAxisValue2)
+              .attr("cy", getYAxisValue22)
+              .attr("r", 5)
+              .attr("fill", "blue")
+              .style("opacity", 1);
+
+            svg.selectAll('ellipse')
+              .data(baseball_data)
+              .enter()
+              .append("ellipse")
+              .filter(function(d){
+                  return d["handedness"]=== "R";
+                })
+              .transition()
+              .duration(500)
+              .attr("cx", getXAxisValue2)
+              .attr("cy", getYAxisValue22)
+              .attr("rx", 5)
+              .attr("ry", 5)
+              .attr("fill", "red")
+              .style("opacity", 1);
+
+          } else{
+            // set the y axis value
+            var YAxisValue = getYAxisValue2;
+
+            svg.selectAll('circle')
+              .data(baseball_data)
+              .enter()
+              .append("circle")
+              .filter(function(d){
+                  return d["handedness"]=== "L";
+                })
+              .transition()
+              .duration(500)
+              .attr("cx", getXAxisValue2)
+              .attr("cy", YAxisValue)
+              .attr("r", 5)
+              .attr("fill", "red")
+              .style("opacity", 1);
+
+            svg.selectAll('ellipse')
+              .data(baseball_data)
+              .enter()
+              .append("ellipse")
+              .filter(function(d){
+                  return d["handedness"]=== "R";
+                })
+              .transition()
+              .duration(500)
+              .attr("cx", getXAxisValue2)
+              .attr("cy", YAxisValue)
+              .attr("rx", 5)
+              .attr("ry", 5)
+              .attr("fill", "blue")
+              .style("opacity", 1);
+            }
+         
+        };
+
+        /////////////////////////////////////
+        // add div for the buttons
+        var group_buttons = d3.select("body")
+            .append("div")
+            .attr("class", "group_buttons");
+        
+
+        
+        /////////////////////////////////////
+        // add change x axis button
+        var button_xaxis = d3.select("div.group_buttons")
+            .append("button")
+            .text("XAxis is: Weight")
+            .attr("class", "button_xaxis");
+        var is_weight = false;
+        button_xaxis.on("click", function(){
+          if(is_weight){
+            is_weight =false;
+            d3.select(this)
+              .text("XAxis is: Weight" );
+            d3.select("text.xlabel")
+              .text("Weight");
+            // update_axis("weight", "HR");
+            update_axis("weight", current_y);
+            //current_x = "weight";
+          } else{
+            is_weight =true;
+            d3.select(this)
+              .transition()
+              .duration(500)
+              .text("XAxis is: Height" );
+            d3.select("text.xlabel")
+              .transition()
+              .duration(500)
+              .text("Height");
+            // update_axis("height", "HR");
+            update_axis("height", current_y);
+            //current_x = "height";
+          }
+          
+        });
+
+        //////////////////////////////////////
+        // add change y axis button
+        var button_yaxis = d3.select("div.group_buttons")
+            .append("button")
+            .text("YAxis is: HR")
+            .attr("class", "button_yaxis");
+        var is_hr = true;
+
+        button_yaxis.on("click", function(){
+          if(is_hr){
+            is_hr =false;
+            d3.select(this)
+              .transition()
+              .duration(500)
+              .text("YAxis is: AVG" );
+            d3.select("text.ylabel")
+              .transition()
+              .duration(500)
+              .text("AVG");
+            // update_axis("weight", "avg");
+            update_axis(current_x, "avg");
+            //current_y = "avg";
+          } else{
+            is_hr =true;
+            d3.select(this)
+              .transition()
+              .duration(500)
+              .text("YAxis is: HR" );
+
+            d3.select("text.ylabel")
+              .transition()
+              .duration(500)
+              .text("HR");
+            // update_axis("weight", "HR");
+            update_axis(current_x, "HR");
+            //current_y = "HR";
+          }
+          
+        });
+
+        /////////////////////////////////////////////
+        // update_hand("L", "R");
+        
+        var button_handedness = d3.select("div.group_buttons")
+            .append("button")
+            .text("Handedness is: RL")
+            .attr("class", "button_handedness");
+          
+        
+        button_handedness.on("click", function(d){
+          var this_button = d3.select(this);
+          if(current_hand==0){
+            current_hand = current_hand+1;
+            update_hand("R", "L");
+            this_button.text("Handedness is: L");
+            
+          } else if (current_hand ==1){
+            current_hand = current_hand+1;
+            update_hand("L", "R");
+            this_button.text("Handedness is: RL");
+          } else if (current_hand ==2){ 
+            current_hand = current_hand+1;      
+            update_hand("L", "R");
+            this_button.text("Handedness is: R");
+          }
+          
+        });
+        ///////////////////////////////////////////
+        // add description text
+        d3.select("body")
+          .append("p")
+          .attr("class", "buttons")
+          .text("Click the 'XAxis' and 'YAxis' to change the options of the axis. Click the 'Handedness' to show the data points with only right handed, only left handed, or both");
+
+
+
+        
+        
+
+      };
+
+      
+      d3.csv("data/baseball_data.csv", plot_points_hand); 
+      
+      
+
+    }
+    
+    
+  </script>
+</head>
+<body>
+
+  <script type="text/javascript">
+    d3.csv("data/baseball_data.csv", draw);
+  </script>
+
+</body>
+</html>

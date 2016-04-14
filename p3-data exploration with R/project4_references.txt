@@ -1,0 +1,7 @@
+http://reganmian.net/blog/2014/10/14/starting-data-analysiswrangling-with-r-things-i-wish-id-been-told/
+https://www.quora.com/Where-can-I-find-large-datasets-open-to-the-public
+http://www.cookbook-r.com/
+https://www.washingtonpost.com/blogs/monkey-cage/wp/2014/03/12/who-predicted-russias-military-intervention-2/
+http://personality-project.org/r/r.commands.html
+http://www.ats.ucla.edu/stat/r/faq/smooths.htm
+http://fch808.github.io/Data-Analysis-with-R-Exercises.html
