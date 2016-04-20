@@ -1,0 +1,4 @@
+http://www.astroml.org/sklearn_tutorial/practical.html
+http://blog.dato.com/how-to-evaluate-ml-models-part-3-validation-and-offline-testing
+http://machinelearningmastery.com/how-to-tune-a-machine-learning-algorithm-in-weka/
+http://machinelearningmastery.com/classification-accuracy-is-not-enough-more-performance-measures-you-can-use/
