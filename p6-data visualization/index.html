@@ -3,10 +3,9 @@
 <head>
   <meta charset="utf-8">
   <style>
-    h2 {
-      margin-left: 500px;
-      text-align: left;
-      font-size: 30px;
+    h2 {   
+      text-align: center;
+      font-size: 15px;
     }
 
     .axis text {
@@ -15,21 +14,20 @@
     }
 
     p{
-      margin-left: 320px;
+      margin-left: 250px;
       margin-bottom: 50px;
-      font-size: 25px;
+      font-size: 15px;
       font-family: sans-serif;
-      width: 1200px;
+      width: 800px;
     }
 
     p.descript{
       margin-bottom: 50px;
-      font-size: 25px;
-      width: 1200px;
+      width: 800px;
     }
 
     svg {
-      margin-left: 250px;
+      margin-left: 200px;
     }
 
     div.group_axiss{
@@ -53,12 +51,12 @@
       position: fixed;
       top: 550px;
       left: 5px;
-      width: 200px;  
+      width: 150px;  
       height: 50px;
       background: rgb(251, 201, 127);
       padding: 3px;
       margin: 7px;
-      font-size: 20px;
+      font-size: 12px;
       font-family: sans-serif;
       text-align: center;
     }
@@ -69,8 +67,8 @@
   <script type="text/javascript">
     function draw(baseball_data){
       var margin = 50,
-          width = 1600,
-          height = 1000,
+          width = 800,
+          height = 600,
           padding = 80;
 
       var current_x = "weight";
@@ -103,7 +101,7 @@
         .attr("y", 2)
         .attr("dy","0.75em")
         .attr("transform", "rotate(-90)")
-        .attr("font-size", "25")
+        .attr("font-size", "15")
         .attr("margin-left", '20')
         .text("HR")
       // add X axis label.....
@@ -146,11 +144,13 @@
           .orient("left")
           .ticks(7);
 
+      //// add x axis
       svg.append("g")
           .attr("class", "axis")
           .attr("transform", "translate(0, "+(height-padding )+")")
           .call(xAxis);
 
+      //// add y axis
       svg.append("g")
           .attr("class", "axis")
           .attr("transform", "translate("+ padding +", 0)")
@@ -158,17 +158,17 @@
 
 
       function plot_points_hand(data){
-        // aggregate the information in each year
-        var nested_hand = d3.nest()
-          .key(function(d){
-              return d['handedness'];
-          })
-          .entries(data);
+        // aggregate the information in each handedness
+        // var nested_hand = d3.nest()
+        //   .key(function(d){
+        //       return d['handedness'];
+        //   })
+        //   .entries(data);
 
-        var ken_func = function(d){
-            return d['key'];
+        // var ken_func = function(d){
+        //     return d['key'];
 
-        };
+        // };
         
         var getXAxisValue = function(d){
 
@@ -226,7 +226,7 @@
           if(current_hand ==2){
             opa = 1;
           } else{
-            opa =0.1;
+            opa =0.2;
           }
 
           // remove the old points
@@ -704,7 +704,7 @@
 
             }
 
-          }, 100);
+          }, 1000);
 
           
     
