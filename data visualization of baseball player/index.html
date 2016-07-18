@@ -158,17 +158,17 @@
 
 
       function plot_points_hand(data){
-        // aggregate the information in each handedness
+        //// aggregate the information in each handedness
         // var nested_hand = d3.nest()
         //   .key(function(d){
         //       return d['handedness'];
         //   })
         //   .entries(data);
 
-        // var ken_func = function(d){
-        //     return d['key'];
+        var ken_func = function(d){
+            return d['key'];
 
-        // };
+        };
         
         var getXAxisValue = function(d){
 
