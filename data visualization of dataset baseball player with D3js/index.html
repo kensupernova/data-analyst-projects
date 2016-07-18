@@ -10,36 +10,35 @@
 
     .axis text {
       font-family: sans-serif;
-      font-size: 25px;
+      font-size: 15px;
     }
 
     p{
-      margin-left: 250px;
+      margin-left: 150px;
       margin-bottom: 50px;
       font-size: 15px;
       font-family: sans-serif;
-      width: 800px;
+      width: 600px;
     }
 
     p.descript{
       margin-bottom: 50px;
-      width: 800px;
     }
 
     svg {
-      margin-left: 200px;
+      margin-left: 120px;
     }
 
-    div.group_axiss{
+    div.group_axis_button{
       position: fixed;
-      top: 150px;
+      top: 100px;
       left: 5px;
-      font-size: 25px;
+      font-size: 15px;
       font-family: sans-serif;
     }
 
-    div.group_axiss div{
-      width: 200px;  
+    div.group_axis_button div{
+      width: 100px;  
       height: 50px;
       background: rgb(251, 201, 127);
       padding: 3px;
@@ -51,7 +50,7 @@
       position: fixed;
       top: 550px;
       left: 5px;
-      width: 150px;  
+      width: 100px;  
       height: 50px;
       background: rgb(251, 201, 127);
       padding: 3px;
@@ -59,6 +58,11 @@
       font-size: 12px;
       font-family: sans-serif;
       text-align: center;
+    }
+
+    .graph-title{
+      margin-left: 150px;
+      width: 500px;
     }
     
   
@@ -84,14 +88,15 @@
 
       d3.select("body")
         .append("h2")
-        .text("The performance of baseball players");
+        .text("The performance of baseball players")
+        .attr("class", "graph-title");
 
       var svg = d3.select("body")
         .append("svg")  
         .attr("width", width+margin)
         .attr("height", height+margin)
         .append("g")
-        .attr("class", "baseball_graph");
+        .attr("class", "baseball-graph");
         
       // add Y axis label .....
       svg.append("text")
@@ -104,6 +109,7 @@
         .attr("font-size", "15")
         .attr("margin-left", '20')
         .text("HR")
+
       // add X axis label.....
       svg.append("text")
         .attr("class", "xlabel")
@@ -394,18 +400,18 @@
           svg.append("svg:line")
               .attr("class", "regression")
               .attr("x1", width-550)
-              .attr("y1", 200)
+              .attr("y1", 50)
               .attr("x2", width-450)
-              .attr("y2", 200)
+              .attr("y2", 50)
               .style("stroke", "green")
               .style("stroke-width", "5px");
 
           svg.append("text")
             .attr("class", "legend")
             .attr("text-anchor", "end")
-            .attr("y", 200)
+            .attr("y", 50)
             .attr("x", width-200)
-            .attr("font-size", "25")
+            .attr("font-size", "15")
             .text("Linear regression line");
 
       
@@ -418,7 +424,7 @@
           // change the handness label
           // change axis, the initial handedness is 2
           d3.select("div.handedness")
-            .text("Handedness is: RL");
+            .text("Current Handedness: RL");
           current_hand = 2;
 
           // remove the old axis
@@ -613,27 +619,27 @@
           svg.append("svg:line")
               .attr("class", "regression")
               .attr("x1", width-550)
-              .attr("y1", 200)
+              .attr("y1", 50)
               .attr("x2", width-450)
-              .attr("y2", 200)
+              .attr("y2", 50)
               .style("stroke", "green")
               .style("stroke-width", "5px");
 
           svg.append("text")
             .attr("class", "legend")
             .attr("text-anchor", "end")
-            .attr("y", 200)
+            .attr("y", 50)
             .attr("x", width-200)
-            .attr("font-size", "25")
+            .attr("font-size", "15")
             .text("Linear regression line");
 
         };
 
         //////////////////////////////////////
         // add div for axiss butttons
-        var group_axiss = d3.select("body")
+        var group_axis_button = d3.select("body")
               .append("div")
-              .attr("class", "group_axiss");
+              .attr("class", "group_axis_button");
 
 
         var yaxis_names = ["HR", "avg"];
@@ -655,7 +661,7 @@
 
                 
                 // ADD BUTTONS
-                var buttons = group_axiss.selectAll("div")
+                var buttons = group_axis_button.selectAll("div")
                       .data(names)
                       .enter()
                       .append("div")
@@ -670,7 +676,7 @@
                 
                 // ADD CLICK FUNCTION TO BUTTONS
                 buttons.on('click', function(d){
-                  d3.select(".group_axiss")
+                  d3.select(".group_axis_button")
                     .selectAll("div")
                     .transition()
                     .duration(500)
@@ -714,7 +720,7 @@
         var button_handedness = d3.select("body")
             .append("div")
             .attr("class", "handedness")
-            .text("Handedness is: RL");
+            .text("Current Handedness: RL");
           
         
         button_handedness.on("click", function(d){
@@ -722,16 +728,16 @@
           if(current_hand==0){
             current_hand = current_hand+1;
             update_hand("L", "R");
-            this_button.text("Handedness is: L");
+            this_button.text("Current Handedness: L");
             
           } else if (current_hand ==1){
             current_hand = current_hand+1;
             update_hand("L", "R");
-            this_button.text("Handedness is: RL");
+            this_button.text("Current Handedness: RL");
           } else if (current_hand ==2){
             current_hand = 0;         
             update_hand("R", "L");
-            this_button.text("Handedness is: R");
+            this_button.text("Current Handedness: R");
           }
           
         });
@@ -740,12 +746,12 @@
         // add description text
         d3.select("body")
           .append("p")
-          .attr("class", "buttons")
+          .attr("class", "buttons-descript")
           .text("'HR' is Home Runs, 'avg' is Average Batting Score, 'weight' is in Pounds, 'height' is in inches.");
 
         d3.select("body")
           .append("p")
-          .attr("class", "buttons")
+          .attr("class", "buttons-descript")
           .text("Click the 'Handedness' to show the data points with only right handed, only left handed, or both.");
 
         d3.select("body")
